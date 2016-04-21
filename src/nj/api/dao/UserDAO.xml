@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nj.api.dao.UserDAO">
+	<resultMap id="BaseResultMap" type="nj.api.entity.UserInfo">
+		<id column="user_id" jdbcType="BIGINT" property="userId" />
+		<result column="stu_id" jdbcType="BIGINT" property="stuId" />
+		<result column="password" jdbcType="VARCHAR" property="password" />
+		<result column="phone" jdbcType="VARCHAR" property="phone" />
+		<result column="nickname" jdbcType="VARCHAR" property="nickName" />
+		<result column="reg_datetime" jdbcType="TIMESTAMP" property="regTime" />
+		<result column="is_account" jdbcType="INTEGER" property="isAccount" />
+		<result column="u_token" jdbcType="VARCHAR" property="uToken" />
+		<result column="u_state" jdbcType="INTEGER" property="uState" />
+		<result column="in_key" jdbcType="BIGINT" property="inKey" />
+		<result column="client_tag" jdbcType="INTEGER" property="clientTag" />
+		<result column="remark" jdbcType="VARCHAR" property="remark" />
+		<result column="cid" jdbcType="VARCHAR" property="cid" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		user_id, stu_id, password, phone, nickname, reg_datetime, is_account,
+		u_token, u_state, in_key, client_tag, remark, cid
+	</sql>
+	
+	<select id="selectUserById" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from account
+		where user_id = #{userId} and u_state !=0
+	</select>
+	
+	<select id="selectUserByName" parameterType="String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from account
+		where phone = #{phone} and u_state !=0
+	</select>
+	
+	<select id="selectUserByStu" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from account
+		where stu_id = #{stuId} and u_state !=0
+	</select>
+	
+	
+	<select id="selectUserByPU" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from account
+		where phone = #{phone} and user_id= #{userId} and u_state !=0
+	</select>
+	
+	<select id="selectPhoneCode" parameterType="java.util.Map"
+		resultType="nj.api.entity.VerificationCode">
+		select * from verification_code where phone = #{phone} and type=#{type} order by time desc
+	</select>
+	
+	<select id="selectInKey" parameterType="java.lang.String"
+		resultType="nj.api.entity.Inkey">
+		select key_id as keyId,stu_id as stuId,secret,state,key_time as keyTime 
+		from bc_inkey where secret = #{secret} and state != 0
+	</select>
+	
+	<update id="setInKey" parameterType="java.lang.Long">
+		update bc_inkey set state = 0 where key_id=#{keyId}
+	</update>
+	
+  	<insert id="insertUser" parameterType="nj.api.entity.UserInfo"
+		useGeneratedKeys="true">
+		insert into account (stu_id,password, phone,nickname, 
+		 reg_datetime, is_account,u_state,in_key,client_tag)
+		values (#{stuId},#{password},#{phone},#{nickName},#{regTime},#{isAccount},#{uState},#{inKey},#{clientTag})
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="userId">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+	
+	<insert id="insertPhoneCode" parameterType="nj.api.entity.VerificationCode"
+		useGeneratedKeys="true">
+		insert into verification_code (phone, code, time, type)
+		values (#{phone},#{code},#{time},#{type})
+	</insert>
+	
+	<update id="insertUserToekn" parameterType="java.util.Map">
+		update account set u_token =#{token} where phone=#{phone}
+	</update>
+	
+	<update id="updatePwd" parameterType="java.util.Map">
+		update account set password =#{pwd} where phone=#{phone}
+	</update>
+	
+	<update id="delUser" parameterType="java.lang.Long">
+		update account set u_state = 0 where stu_id=#{stuId}
+	</update>
+	
+	<update id="updateUserInfo" parameterType="nj.api.entity.UserInfo">
+		update account
+		<set>
+			<if test="nickName != null">
+				nickname = #{nickName},
+			</if>
+			<if test="uState != null">
+				u_state = #{uState},
+			</if>
+			<if test="clientTag != null">
+				client_tag = #{clientTag},
+			</if>
+			<if test="remark != null">
+				remark = #{remark},
+			</if>
+			<if test="cid != null">
+				cid = #{cid},
+			</if>
+		</set>
+		where user_id = #{userId}
+	</update>
+	
+	<select id="selectAllUser"  resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from account where u_state !=0
+	</select>
+	
+	<select id="selectstudentByClass" parameterType="java.lang.Long" 
+	resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from account where u_state !=0 
+	</select>	
+	
+	
+</mapper>

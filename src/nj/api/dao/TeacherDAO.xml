@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nj.api.dao.TeacherDAO">
+	<resultMap id="BaseResultMap" type="nj.api.entity.TeacherInfo">
+		<id column="t_id" jdbcType="BIGINT" property="teacherId" />
+		<result column="t_name" jdbcType="VARCHAR" property="teacherName" />
+		<result column="t_info" jdbcType="VARCHAR" property="teacherInfo" />
+		<result column="t_pic" jdbcType="VARCHAR" property="teacherPic" />
+		<result column="t_phone" jdbcType="VARCHAR" property="teacherPhone" />
+		<result column="t_state" jdbcType="INTEGER" property="teacherState" />
+		<result column="t_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="t_video" jdbcType="VARCHAR" property="teacherVideo" />
+	</resultMap>
+	
+	
+	<sql id="Base_Column_List">
+		t_id, t_name, t_info, t_pic, t_phone, t_state, t_time, t_video
+	</sql>
+
+	<select id="selectTeacherList" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from bc_teacher where t_state=1
+	</select>
+	
+	<select id="selectTeacherByName" parameterType="java.util.Map" 
+	resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from bc_teacher where t_state=1
+		<if test="teacherName!=null">
+			and t_name = #{teacherName}
+		</if>
+		order by t_time desc
+		<if test="offset!=0">
+			limit #{cursor},#{offset}
+		</if>
+	</select>
+	
+	<select id="getTeacherCount" resultType="java.lang.Long">
+		SELECT COUNT(*) from bc_teacher where t_state=1 
+	</select>
+	
+	<insert id="addTeacher" parameterType="nj.api.entity.TeacherInfo"
+		useGeneratedKeys="true">
+		insert into bc_teacher (t_name,t_info,t_pic,t_phone,t_state,t_time,t_video)
+		values (#{teacherName},#{teacherInfo},#{teacherPic},#{teacherPhone},#{teacherState},
+		#{createTime},#{teacherVideo})
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="teacherId">
+			select last_insert_id()
+		</selectKey>
+	</insert>	
+	
+	<update id="delTeacher" parameterType="java.lang.Long">
+		update bc_teacher set t_state = 0 where t_id=#{teacherId}
+	</update>	
+	
+	<update id="updateTeacher" parameterType="nj.api.entity.TeacherInfo">
+		update bc_teacher 
+		set t_name = #{teacherName}, t_info = #{teacherInfo},t_pic = #{teacherPic},
+		t_phone = #{teacherPhone}, t_state = #{teacherState}, t_time = #{createTime},
+		t_video = #{teacherVideo}
+		where t_id=#{teacherId}
+	</update>
+	
+
+</mapper>

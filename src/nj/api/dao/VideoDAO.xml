@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="nj.api.dao.VideoDAO" >
+	<resultMap id="BaseResultMap" type="nj.api.entity.VideoEntity">
+		<id column="v_id" jdbcType="BIGINT" property="videoId" />
+		<result column="v_name" jdbcType="VARCHAR" property="videoName" />
+		<result column="v_info" jdbcType="VARCHAR" property="videoDesc" />
+		<result column="v_pic" jdbcType="VARCHAR" property="videoPic" />
+		<result column="v_state" jdbcType="INTEGER" property="videoState" />
+		<result column="v_url" jdbcType="VARCHAR" property="videoUrl" />
+		<result column="v_type" jdbcType="VARCHAR" property="videoType" />
+	</resultMap>
+	
+	
+	<sql id="Base_Column_List">
+		v_id, v_name, v_info, v_pic, v_state, v_url, v_type
+	</sql>
+	
+	
+ 
+	<select id="getVideoList" resultType="java.util.Map">
+	    select a.v_id as videoId,a.v_pic as videoThumbUrl,
+	    a.v_url as videoUrl, a.v_name as cameraPosition
+	    from bc_video a
+	    where a.v_state = 1
+  	</select>
+  	
+	<select id="getLiveVideoList" parameterType="java.util.Map" 
+	resultMap="BaseResultMap">
+	    select 
+	    <include refid="Base_Column_List" />
+	    from bc_video where v_state = 1
+	   	<if test="videoId!=null">
+			and v_id=#{videoId}
+		</if>
+	   	<if test="offset!=0">
+			limit #{cursor},#{offset}
+		</if>
+  	</select>
+  	
+  	
+  	<select id="getLiveVideoListCount" resultType="java.lang.Long">
+	    select COUNT(*) from bc_video where v_state = 1
+  	</select>
+  	
+  	<insert id="addLiveVideo" parameterType="nj.api.entity.VideoEntity"
+		useGeneratedKeys="true">
+		insert into bc_video (v_name, v_info, v_pic, v_state, v_url, v_type)
+		values (#{videoName},#{videoDesc},#{videoPic},#{videoState},#{videoUrl},#{videoType})
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="videoId">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+	
+	<update id="delLiveVideo" parameterType="java.lang.Long">
+		update bc_video set v_state = 0 where v_id=#{videoId}
+	</update>
+	
+	<update id="updateLiveVideo" parameterType="nj.api.entity.VideoEntity">
+		update bc_video
+		<set>
+			<if test="videoName != null">
+				v_name = #{videoName},
+			</if>
+			<if test="videoDesc != null">
+				v_info = #{videoDesc},
+			</if>
+			<if test="videoPic != null">
+				v_pic = #{videoPic},
+			</if>
+			<if test="videoUrl != null">
+				v_url = #{videoUrl},
+			</if>
+			<if test="videoType != null">
+				v_type = #{videoType},
+			</if>
+		</set>
+		where v_id=#{videoId}
+	</update>
+  
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nj.api.dao.HomeDAO">
+
+	<select id="findThemeRecommend" parameterType="java.util.Map"  resultType="java.util.Map">
+		select e.theme_id themeId,e.service_id serviceId,e.thumb_pic pic,e.theme_name themeName,a.nickname nickName,
+		a.phone phone,a.remark userLike,a.head_pic themeHeadPic,
+		(SELECT sum(number) from praise p where p.theme_id=e.theme_id) themePraNum,
+		(SELECT count(1) from attention t where t.service_id=e.service_id) userColNum
+		 from theme e, account a where a.user_id=e.service_id and e.theme_type=1 order by e.time desc
+		 <if test="offset!=0">
+			limit #{cursor},#{offset}
+		</if>
+	</select>
+	
+	<select id="selectCommonConfig" parameterType="java.lang.String"
+	resultType="java.util.Map">
+		SELECT a.value1,a.value2
+		FROM bc_common_config a WHERE con_key=#{key}
+	</select>
+	
+	<select id="selectFoodList" resultType="java.util.Map">
+
+		SELECT a.food_mon as foodMon,a.food_tue as foodTue,
+		a.food_wed as foodWed,a.food_thu as foodThu,a.food_fri as foodFri
+		FROM bc_weekfood a
+		WHERE a.food_state = 1 
+	</select>
+	
+	<select id="updateFoodList" parameterType="nj.api.entity.FoodWeekEntity">
+		update bc_weekfood a 
+		set a.food_mon =#{foodMon},a.food_tue =#{foodTue},
+		a.food_wed =#{foodWed},a.food_thu =#{foodThu},a.food_fri =#{foodFri}
+		where food_id = 1
+	</select>
+	
+	
+	
+</mapper>

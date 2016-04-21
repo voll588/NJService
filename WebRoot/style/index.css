@@ -1,0 +1,41 @@
+@charset "utf-8";
+/* CSS Document */
+
+.banner{background:url(../images/banner.jpg) no-repeat center top;height:515px;width:100%;overflow:hidden;}
+.feature{width:945px;margin:0px auto;clear:left;overflow:hidden}
+.feature li{float:left;width:195px;margin:0 0 0 90px;text-align:center;}
+.feature h3{font-size:22px;color:#333;font-weight:normal;margin:40px 0 10px 0; text-align:center}
+.feature p{font-size:16px;color:#555; text-align:left}
+.ico02 > img {margin: 2px 0 7px;}
+.ico03 > img {margin-bottom: 3px;}
+
+
+
+.btn_down{width:1090px;margin:0 auto;padding-top:344px;}
+.down{width:1200px;margin:0px auto 100px;overflow:hidden}
+.down_left{float:left;margin:25px 17px 50px 165px;font-size:24px;color:#333;overflow:hidden}
+.tit01{font-size:60px;color:#00cc99;margin:0 0 15px 0;}
+.lg_Qr {float: left; margin: 0px 5px 0 35px;text-align: center;overflow:hidden;width:170px;}
+.lg_Qr a img{display:block;margin:0 auto 15px;width:162px;height:47px;}
+.login_Qr_code {height: 132px; margin: 0 auto;padding: 20px;width: 132px;}
+
+.tariff_warp{width:100%;margin:0 auto;font-family:"Microsoft YaHei";border-radius: 8px; background:#fff;}
+.tariff_main{widht:100%;margin:0 auto;}
+.tariff_header{font-size:1.8em;color:#fff;font-family:"黑体";background:#00cc99;text-align:center;margin:0 auto;border-radius:0 0 3px 3px;padding:0.2em 0;width:78%;}
+.content{overflow:auto;padding:0 1em;}
+.conten01{margin:1.8em 0 0.8em}
+.conten01 img{vertical-align:middle;width:2.8125em;height:2.8125em;}
+.tit_01{ font-size: 1.188em;  color:#00cc99;padding-left:0.5em;} 
+.list_style01{padding:0 0 0 1em;margin:0.5em 0 0 0}
+.list_style01 li{ list-style-type: none; background: url(../images/dian01.png) no-repeat left 0.5em;padding-left:0.6em;color:#666;line-height:1.625em;} 
+
+.main01_left{margin:130px 40px 0 10px;float:left;}
+.img_map{margin:100px 0 0 0}
+
+.list_style02 i{color:#00cc99;font-size:2em;font-style:normal; vertical-align:middle;margin-right:5px;}
+.list_style02 li{color:#555;line-height:2.3em;}
+.tit_public{font-size:2.19em;color:#515151;margin-bottom:1em;}
+.mB15{margin-bottom:15px}
+.list_style03{float:left;padding-top:32px;width:885px;margin-left:30px;}
+.list_style03 li{margin-bottom:2em;color:#666;line-height:1.6em;}
+.list_style03 li h3{font-size:1.375em;color:#515151;font-weight:normal;margin-bottom:0.35em;}

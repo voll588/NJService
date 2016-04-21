@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nj.api.dao.AdviceDAO">
+	<insert id="insertAdvice" parameterType="java.util.Map"
+		useGeneratedKeys="true">
+		insert into advice (user_id,phone,content,advice_time,client_tag)
+		values (#{userId},#{phone},#{content},#{time},#{clientTag})
+	</insert>
+	
+	<select id="getAdviceList" parameterType="java.util.Map" resultType="java.util.Map">
+		select a.advice_id as adviceId, a.phone as phone,a.content as adviceTxt,
+		a.advice_time as adviceTime,a.client_tag as clientType
+		from advice a order by a.advice_time desc
+		<if test="offset!=0">
+			limit #{cursor},#{offset}
+		</if>
+	</select>
+	
+	<select id="getAdviceCount" resultType="java.lang.Long">
+		select COUNT(*) from advice
+	</select>	
+	
+
+</mapper>

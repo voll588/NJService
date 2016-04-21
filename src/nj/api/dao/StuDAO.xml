@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nj.api.dao.StuDAO">
+	<resultMap id="BaseResultMap" type="nj.api.entity.StuInfo">
+		<id column="stu_id" jdbcType="BIGINT" property="stuId" />
+		<result column="user_id" jdbcType="BIGINT" property="userId" />
+		<result column="stu_name" jdbcType="VARCHAR" property="stuName" />
+		<result column="class_id" jdbcType="BIGINT" property="classId" />
+		<result column="crt_datetime" jdbcType="TIMESTAMP" property="cTime" />
+		<result column="end_datetime" jdbcType="TIMESTAMP" property="endTime" />
+		<result column="contact_phone" jdbcType="VARCHAR" property="phone" />
+		<result column="stu_state" jdbcType="INTEGER" property="stuState" />
+		<result column="stu_type" jdbcType="VARCHAR" property="stuType" />
+	</resultMap>
+	
+	
+	<sql id="Base_Column_List">
+		stu_id, user_id, stu_name, class_id, crt_datetime, end_datetime, contact_phone,
+		stu_state,stu_type
+	</sql>
+
+	<select id="selectStuByKey" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from bc_student
+		where stu_id = #{stuId}
+	</select>
+	
+	<select id="selectStuByUserId" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from bc_student
+		where user_id = #{userId}
+	</select>
+	
+	<select id="selectStuByClass" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from bc_student
+		where class_id = #{classId} and stu_state = 1
+	</select>
+	
+	<select id="selectInkeyBystuId" parameterType="java.lang.Long"
+		resultType="java.util.Map">
+		select * from bc_inkey where stu_id = #{stuId}
+	</select>
+	
+	<select id="selectStuByMap" parameterType="java.util.Map"
+		resultType="java.util.Map">
+	   SELECT a.stu_id as stuId,a.stu_name as stuName,a.class_id as classId,
+	   b.class_name as className,c.t_id as teacherId,c.t_name as teacherName,
+	   a.user_id as userId,a.crt_datetime as cTime,a.end_datetime as entTime,
+	   a.contact_phone as phone, a.stu_state as stuState,a.stu_type as stuType
+	   FROM bc_student a , bc_stuclass b , bc_teacher c 
+	   WHERE a.class_id = b.class_id AND b.teacher_id = c.t_id AND a.stu_state=1
+		<if test="stuId != 0">
+			AND a.stu_id = #{stuId}
+		</if>
+		order by a.crt_datetime desc	
+		<if test="offset!=0">
+			limit #{cursor},#{offset}
+		</if>
+	</select>
+	<select id="getStuCount" resultType="java.lang.Long">
+	   SELECT count(*)
+	   FROM bc_student a , bc_stuclass b , bc_teacher c 
+	   WHERE a.class_id = b.class_id AND b.teacher_id = c.t_id AND a.stu_state=1
+       order by a.crt_datetime desc	
+	</select>
+	
+	<select id="getInkey" parameterType="java.lang.Long"
+		resultType="java.util.Map">
+		select secret from bc_inkey where stu_id = #{stuId} and state = 1
+	</select>
+	
+	<insert id="addStudent" parameterType="nj.api.entity.StuInfo"
+		useGeneratedKeys="true">
+		insert into bc_student (stu_name,class_id,user_id,crt_datetime,contact_phone,stu_state,stu_type)
+		values (#{stuName},#{classId},#{userId},#{cTime},#{phone},#{stuState},#{stuType})
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="stuId">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+
+	<update id="updateUserOfStu">
+		update bc_student set user_id = #{1} where stu_id=#{0}
+	</update>
+
+	<update id="delStudent" parameterType="java.lang.Long">
+		update bc_student set stu_state = 0 where stu_id=#{stuId}
+	</update>
+
+	<update id="updaeStudent" parameterType="nj.api.entity.StuInfo">
+		update bc_student
+		<set>
+			<if test="stuName != null">
+				stu_name = #{stuName},
+			</if>
+			<if test="classId != null">
+				class_id = #{classId},
+			</if>
+			<if test="phone != null">
+				contact_phone = #{phone},
+			</if>
+			<if test="stuState != null">
+				stu_state = #{stuState},
+			</if>
+			<if test="stuType != null">
+				stu_type = #{stuType},
+			</if>
+		</set>
+		where stu_id=#{stuId}
+	</update>	
+
+
+	<insert id="addInKey" parameterType="nj.api.entity.Inkey"
+		useGeneratedKeys="true">
+		insert into bc_inkey (stu_id,secret,state,key_time)
+		values (#{stuId},#{secret},#{state},#{keyTime})
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="key_id">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+
+</mapper>

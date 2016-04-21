@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nj.api.dao.PushDAO">
+	<update id="updateCid" parameterType="java.util.Map">
+		update account set cid =#{cid} where user_id=#{userId}
+	</update>
+	
+<select id="pushList" parameterType="java.util.Map" resultType="java.util.Map">
+		select b.m_id as msgId, a.push_name as msgName,a.msg_subject as msgSubject,a.push_content as msgText,
+		a.push_time as msgTime,a.push_id as msgId,b.m_read as msgRead 
+		from push_list a,bc_msg_log b where b.user_id = #{userId} and a.push_type=#{msgType} 
+		and a.push_id = b.push_id order by a.push_time desc
+		<if test="offset!=0">
+			limit #{cursor},#{offset}
+		</if>
+	</select>
+
+	<select id="getMsgList" resultType="java.util.Map">
+		select a.push_id as noticeId, a.push_name as noticeName,a.msg_subject as noticeSub,
+		a.push_content as noticeText,a.push_time as noticeTime,a.push_type as noticeType
+		from push_list a order by a.push_time desc
+		<if test="offset!=0">
+			limit #{cursor},#{offset}
+		</if>
+	</select>
+	
+	<select id="MsgListCount" resultType="java.lang.Long">
+		select COUNT(*) from push_list
+	</select>	
+	
+	<select id="pushListCount" parameterType="java.util.Map" resultType="java.lang.Long">
+		select count(*) from push_list a,bc_msg_log b 
+		where b.user_id = #{userId} and a.push_type=#{msgType} 
+		and a.push_id = b.push_id 
+	</select>
+	
+	<insert id="insertMsg" parameterType="java.util.Map"
+		useGeneratedKeys="true">
+		insert into push_list (push_name,msg_subject,push_content,push_time, push_type,class_id)
+		values (#{msgName},#{msgSub},#{msgContent},#{msgTime},#{msgType},#{classId})
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="pushId">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+	
+	<insert id="insertMsgLog" parameterType="java.util.Map"
+		useGeneratedKeys="true">
+		insert into bc_msg_log (user_id,push_id,m_read,m_time)
+		values (#{userId},#{pushId},#{mRead},#{mTime})
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="pushId">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+	
+	<update id="updateReadMsg" parameterType="java.lang.Long">
+		update bc_msg_log set m_read = 1 where m_id=#{msgId}
+	</update>
+	
+</mapper>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nj.api.dao.BgAdminDAO">
+	<resultMap id="BaseResultMap" type="nj.api.entity.AdminEntity">
+		<id column="admin_id" jdbcType="BIGINT" property="adminId" />
+		<result column="admin_username" jdbcType="VARCHAR" property="adminUserName" />
+		<result column="admin_name" jdbcType="VARCHAR" property="adminName" />
+		<result column="admin_pwd" jdbcType="VARCHAR" property="adminPassword" />
+		<result column="role_id" jdbcType="BIGINT" property="adminRoleId" />
+		<result column="time" jdbcType="TIMESTAMP" property="adminTime" />
+		<result column="admin_token" jdbcType="VARCHAR" property="adminToken" />
+		<result column="admin_state" jdbcType="VARCHAR" property="adminState" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		admin_id, admin_username,admin_name, admin_pwd, role_id, time,admin_state,admin_token
+	</sql>
+	
+	<select id="selectAdmin" parameterType="java.util.Map" 
+	resultMap="BaseResultMap">
+		select 
+		<include refid="Base_Column_List" />
+		from bg_admin where admin_username=#{name} and admin_pwd=#{password}
+		and admin_state = 1
+	</select>
+	
+	<select id="selectAdminById" parameterType="java.lang.Long" 
+	resultMap="BaseResultMap">
+		select 
+		<include refid="Base_Column_List" />
+		from bg_admin where admin_id=#{adminId}
+		and admin_state = 1
+	</select>	
+
+	<select id="checkAdmin" resultType="nj.api.entity.AdminEntity">
+		SELECT * FROM  bg_admin WHERE  admin_id = #{0} AND role_id = #{1} and admin_state = 1
+		
+	</select>
+	
+	<select id="selectAdminList" resultType="java.util.Map">
+		SELECT DISTINCT a.admin_id as adminId,a.role_id as adminRoleId,
+		a.admin_username as adminUserName,a.admin_name as adminName,
+		a.time as cTime,b.role_title as adminRoleName 
+		FROM  bg_admin a, bg_role b 
+		WHERE a.role_id = b.role_id and a.admin_state = 1 and a.role_id != 1
+		<if test="offset!=0">
+			limit #{cursor},#{offset}
+		</if>		
+	</select>
+	
+	<select id="getAdminCount" resultType="java.lang.Long">
+		SELECT COUNT(*) FROM  bg_admin
+		WHERE admin_state = 1
+	</select>
+	
+	<select id="selectStuCount" resultType="java.lang.Long">
+		SELECT COUNT(*) FROM bc_student WHERE stu_state = 1
+	</select>
+	
+	<select id="selectUserCount" resultType="java.lang.Long">
+		SELECT COUNT(*) FROM account WHERE u_state = 1
+	</select>
+	
+	<select id="selectClassCount" resultType="java.lang.Long">
+		SELECT COUNT(*) FROM bc_stuclass WHERE c_state = 1
+	</select>
+	
+	<select id="selectDeviceCount" resultType="java.lang.Long">
+		SELECT COUNT(*) FROM bc_video WHERE v_state = 1
+	</select>
+	
+	<select id="selectAdminRole" parameterType="java.lang.Long" 
+	resultType="java.util.Map">
+		SELECT r.role_id as adminRoleId,m.menu_id as menuId,m.menu_name as menuName,
+		m.menu_discription as menuDis
+		from bg_role r,bg_menu m  
+		WHERE  r.role_id = #{adminRoleId}  and m.menu_id = r.menu_id 
+	</select>
+	
+	
+  	<insert id="addAdmin" parameterType="nj.api.entity.AdminEntity"
+		useGeneratedKeys="true">
+		insert into bg_admin (admin_username,admin_name,admin_pwd, role_id,time)
+		values (#{adminUserName},#{adminName},#{adminPassword},#{adminRoleId},#{adminTime})
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="adminId">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+	
+	<update id="insertUserToekn">
+	
+		update bg_admin set admin_token =#{1} where admin_id = #{0}
+	
+	</update>	
+	
+	
+	<update id="updateAdmin" parameterType="nj.api.entity.AdminEntity">
+	
+		update bg_admin set admin_username=#{adminUserName},admin_name=#{adminName},
+		
+		<if test="adminPassword!='' and adminPassword!=null">
+			admin_pwd=#{adminPassword},
+		</if>
+		
+		role_id=#{adminRoleId} where admin_id = #{adminId}
+	
+	</update>
+		
+	<update id="delAdmin" parameterType="java.lang.Long">
+	
+		update bg_admin set admin_state=0 where admin_id = #{adminId}
+	
+	</update>
+	
+</mapper>

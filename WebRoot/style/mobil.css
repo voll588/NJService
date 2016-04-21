@@ -1,0 +1,44 @@
+@charset "utf-8";
+/* CSS Document */
+
+@media screen and (max-width:1024px){
+/*@media screen and (min-width:480px) and (max-width:900px){*/
+
+	
+.warp{width:96%;margin:0 2% 2.5em;}
+.head_warp{height:66px;width:96%;margin:0 2%;padding-top:0;}
+.head_warp span,.head_warp font{ background:url(../images/mobil_help_logo.png);display:block;float:left;width:136px;height:60px;}
+.head_warp font{ background:url(../images/mobil_help_logo02.png);}
+.head_warp i{display:none;}
+.indt2em{text-indent:1.55em;}
+img { max-width: 100%;}
+.ico01, .ico02, .ico03, .ico04 {background-position: 1em 0;background-size:500%;}
+.ico02 {background-position: -5.5em 0;}
+.ico03 {background-position: -12em 0;}
+.ico04 {background-position: -19em 0;}
+
+.feature {margin: 2em auto;width: 100%;}
+.down {width: 100%; margin: -1.6em 0 2.5em; padding-top: 1em;}
+
+.feature li { height: 100px;margin: 0 auto;width: 73px;}
+.feature h3 { font-size: 0.95em;margin: 0;padding-top: 60px;}
+
+.btn_down {padding-top: 1em; width: 100%}
+.btn_down img{width:30%;height:30%;margin: 60px 0 25px 25px;}
+.banner {background:url(../images/mobil_banner.jpg) no-repeat;background-size:100%;height:auto;margin-top: 0.5em;}
+.tit01{font-size: 1.275em;margin-bottom:0.2em}
+.down_left{margin:0 0 0 0.8em;font-size:1.2em}
+.lg_Qr {margin:0 0 0 1em;width:40%}
+.login_Qr_code {height: auto;margin: 0 auto;padding: 1.25em;width: auto;}
+.login_Qr_code img{width:auto;height:auto;}
+.h3_xy{display:none;}
+
+.footer{height:80px;padding-top:1.25em;line-height:1.5em}}
+
+
+
+ 
+
+
+
+

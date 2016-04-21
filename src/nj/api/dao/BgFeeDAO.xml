@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nj.api.dao.BgFeeDAO">
+	<resultMap id="BaseResultMap" type="nj.api.entity.FeeEntity">
+		<id column="ps_id" jdbcType="BIGINT" property="psId" />
+		<result column="ps_name" jdbcType="VARCHAR" property="psName" />
+		<result column="ps_price" jdbcType="BIGINT" property="psPrice" />
+		<result column="ps_type" jdbcType="VARCHAR" property="psType" />
+		<result column="ps_state" jdbcType="INTEGER" property="psState" />
+		<result column="ps_time" jdbcType="TIMESTAMP" property="psTime" />
+	</resultMap>
+	
+	
+	<sql id="Base_Column_List">
+		ps_id, ps_name, ps_price, ps_type, ps_state, ps_time
+	</sql>
+	
+	<select id="selectFeeList" parameterType="java.util.Map"
+	 resultMap="BaseResultMap">
+		SELECT 
+		<include refid="Base_Column_List" />
+		FROM bc_service_pro where ps_state=1
+		<if test="psId!=null">
+			and ps_id = #{psId}
+		</if>
+		<if test="offset!=0">
+			limit #{cursor},#{offset}
+		</if>
+	</select>
+	
+	<select id="getFeeCount" resultType="java.lang.Long">
+		SELECT COUNT(*) FROM bc_service_pro where ps_state=1
+	</select>
+
+  	<insert id="addFeeInfo" parameterType="nj.api.entity.FeeEntity"
+		useGeneratedKeys="true">
+		insert into bc_service_pro (ps_name,ps_price,ps_time,ps_type,ps_state)
+		values (#{psName},#{psPrice},#{psTime},#{psType},#{psState})
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="psId">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+	
+	<update id="updateFeeInfo" parameterType="nj.api.entity.FeeEntity">
+	
+		update bc_service_pro 
+		
+		<set>
+			<if test="psName != null">
+				ps_name = #{psName},
+			</if>
+			<if test="psPrice != null">
+				ps_price = #{psPrice},
+			</if>
+		</set>
+		where ps_id=#{psId}
+	</update>
+		
+	<update id="delFeeInfo" parameterType="java.lang.Long">
+	
+		update bc_service_pro set ps_state=0 where ps_id=#{psId} and ps_type != 'main'
+	
+	</update>
+	
+</mapper>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nj.api.dao.InterestClassDAO">
+
+	<resultMap id="BaseResultMap" type="nj.api.entity.InterestClassEntity">
+		<id column="ter_id" jdbcType="BIGINT" property="terId" />
+		<result column="teacher_id" jdbcType="BIGINT" property="teacherId" />
+		<result column="service_id" jdbcType="BIGINT" property="serviceId" />
+		<result column="ps_id" jdbcType="BIGINT" property="psId" />
+		<result column="ter_name" jdbcType="VARCHAR" property="terName" />
+		<result column="ter_description" jdbcType="VARCHAR" property="terDesc" />
+		<result column="ter_thumb" jdbcType="VARCHAR" property="terThumb" />
+		<result column="ter_num" jdbcType="INTEGER" property="terNum" />
+		<result column="ter_count" jdbcType="INTEGER" property="terCount" />
+		<result column="ter_state" jdbcType="INTEGER" property="terState" />
+		<result column="ter_time" jdbcType="DATE" property="terTime" />
+		<result column="ps_price" jdbcType="BIGINT" property="terFee" />
+	</resultMap>
+	
+	
+	<sql id="Base_Column_List">
+		ter_id, teacher_id, stu_id, ter_name, ter_description, ter_num, ter_count,ter_state,ter_time
+	</sql>
+
+	<select id="getInterestList" resultMap="BaseResultMap">
+		SELECT a.*,c.t_name as teacherName,c.t_pic as teacherThumb
+ 		FROM  bc_interest_class a ,bc_teacher c
+		WHERE a.ter_state = 1 and a.teacher_id = c.t_id 
+		<![CDATA[AND CURDATE()<ter_time]]>
+		
+	</select>
+	
+	
+	<select id="getJoinList" parameterType="java.lang.Long"
+	resultMap="BaseResultMap">
+		select b.*,d.t_name as teacherName,d.t_pic as teacherThumb  
+		from bc_bug_service a, bc_interest_class b ,bc_teacher d
+		where a.stu_id=#{stuId} and a.service_type = 03 
+		and a.ter_id = b.ter_id and a.end_time>=  CURDATE() 
+		and b.ter_state = 1 and d.t_id = b.teacher_id
+		<![CDATA[AND CURDATE()<ter_time]]>
+		
+	</select>
+	
+	<select id="getInterestListByName" parameterType="java.util.Map" 
+	resultType="java.util.Map">
+		SELECT a.ter_id AS interestId, a.ter_name AS interestName,a.teacher_id AS teacherId,
+		a.teacher_id AS teacherName,a.ter_description AS interestDesc,a.ter_thumb AS interestPic,
+		a.ter_num AS interestNum,a.ter_count AS interestCount,b.ps_price AS interestFee,a.ps_id AS psId,
+		a.ter_time AS interestTime
+		FROM bc_interest_class a,bc_service_pro b WHERE a.ter_state =1 AND a.ps_id = b.ps_id
+		<if test="interestName != null">
+			and a.ter_name = #{interestName}
+		</if>
+		order by ter_time desc
+		<if test="offset!=0">
+			limit #{cursor},#{offset}
+		</if>
+	</select>
+	
+	<select id="getInterestState" parameterType="java.util.Map" 
+	resultType="java.util.Map">
+		SELECT * FROM bc_bug_service a 
+		WHERE a.user_id = #{userId} AND a.stu_id = #{stuId} AND a.ter_id = #{terId}
+	</select>
+	
+	<select id="getInterestCount" resultType="java.lang.Long">
+		SELECT COUNT(*) FROM bc_interest_class a WHERE a.ter_state =1
+	</select>
+	
+	<select id="getInterestClass" parameterType="java.lang.Long" 
+	resultMap="BaseResultMap">
+
+		SELECT a.*,b.ps_price as terFee  FROM bc_interest_class a,bc_service_pro b
+		WHERE a.ter_state=1 and a.ter_id = #{terId} and a.ps_id = b.ps_id 
+	</select>
+	
+	<select id="getIntClassById" parameterType="java.lang.Long" 
+	resultMap="BaseResultMap">
+		SELECT a.* FROM bc_interest_class a , bc_pay_order b
+		WHERE a.ter_state=1 and a.service_id = b.service_id and b.order_id = #{orderId}
+	</select>	
+	
+
+	<insert id="addInterestClass" parameterType="nj.api.entity.InterestClassEntity"
+		useGeneratedKeys="true">
+		insert into bc_interest_class 
+		(teacher_id,ps_id,ter_name,ter_description,ter_thumb,ter_count,ter_state,ter_time)
+		values (#{teacherId},#{psId},#{terName},#{terDesc},#{terThumb},#{terCount},#{terState},#{terTime})
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="terId">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+	
+	<update id="updateInterestClass" parameterType="java.lang.Long">
+		update bc_interest_class set ter_num =ter_num+1 where ter_id=#{terId} 
+		AND <![CDATA[ter_num < ter_count]]>
+	</update>
+	
+	<update id="cancelInterestClass" parameterType="java.lang.Long">
+		update bc_interest_class set ter_num =ter_num-1 where ter_id=#{terId}
+	</update>
+	
+	<update id="updateInterClassInfo" parameterType="nj.api.entity.InterestClassEntity">
+		update bc_interest_class 
+		<set>
+			<if test="terName != null">
+				ter_name = #{terName},
+			</if>
+			<if test="teacherId != null">
+				teacher_id = #{teacherId},
+			</if>
+			<if test="psId != null">
+				ps_id = #{psId},
+			</if>
+			<if test="terThumb != null">
+				ter_thumb = #{terThumb},
+			</if>
+			<if test="terDesc != null">
+				ter_description = #{terDesc},
+			</if>
+			<if test="terCount != null">
+				ter_count = #{terCount},
+			</if>
+		</set>
+		where ter_id=#{terId}
+	</update>
+	
+	<update id="delInterestClass" parameterType="java.lang.Long">
+		update bc_interest_class set ter_state=0 where ter_id=#{terId}
+	</update>
+	
+
+</mapper>

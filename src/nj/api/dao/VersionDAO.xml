@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="nj.api.dao.VersionDAO" >
+  <resultMap id="BaseResultMap" type="nj.api.entity.Version" >
+    <id column="version_id" property="versionId" jdbcType="BIGINT" />
+    <result column="vnum" property="vnum" jdbcType="INTEGER" />
+    <result column="vname" property="vname" jdbcType="VARCHAR" />
+    <result column="vdate" property="vdate" jdbcType="TIMESTAMP" />
+    <result column="vcontext" property="vcontext" jdbcType="VARCHAR" />
+    <result column="vaddress" property="vaddress" jdbcType="VARCHAR" />
+    <result column="isupdate" property="isupdate" jdbcType="INTEGER" />
+    <result column="vsize" property="vsize" jdbcType="BIGINT" />
+    <result column="vmd5" property="vmd5" jdbcType="VARCHAR" />
+    <result column="vtype" property="vtype" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    version_id, vnum, vname, vdate, vcontext, vaddress, isupdate, vsize, vmd5, vtype
+  </sql>
+ 
+	<select id="selectVersion" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from version
+    where vnum >= #{version,jdbcType=INTEGER} 
+      and vtype = #{vtype,jdbcType=INTEGER}
+      order by vdate desc 
+  	</select>
+  
+</mapper>

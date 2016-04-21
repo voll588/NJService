@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nj.api.dao.ServiceDAO">
+
+	<resultMap id="BaseResultMap" type="nj.api.entity.ServiceEntity">
+		<id column="service_id" jdbcType="BIGINT" property="serviceId" />
+		<result column="user_id" jdbcType="BIGINT" property="userId" />
+		<result column="stu_id" jdbcType="BIGINT" property="stuId" />
+		<result column="ps_id" jdbcType="BIGINT" property="psId" />
+		<result column="start_time" jdbcType="DATE" property="startTime" />
+		<result column="end_time" jdbcType="DATE" property="endTime" />
+		<result column="state" jdbcType="INTEGER" property="state" />
+		<result column="service_type" jdbcType="INTEGER" property="serviceType" />
+		<result column="ter_id" jdbcType="BIGINT" property="interestId" />
+	</resultMap>
+	
+	
+	<sql id="Base_Column_List">
+		service_id, user_id, stu_id, ps_id, start_time, end_time, state,service_type,ter_id
+	</sql>
+
+
+	<select id="getServiceList" parameterType="java.util.Map" 
+	resultMap="BaseResultMap">
+			select b.*  from bc_service_pro as p ,bc_bug_service as b  
+			where b.service_type = #{type}  and b.user_id = #{userId}  
+			and b.ps_id = p.ps_id  and b.state=1
+	</select>
+	
+	<select id="getClassCount" resultType="java.lang.Long">
+		SELECT COUNT(*) FROM  bc_service_pro 
+	</select>
+	
+	<select id="getServiceById" parameterType="java.lang.Long" 
+	resultMap="BaseResultMap">
+			select b.*  from bc_bug_service as b  
+			where b.service_id = #{serviceId} and b.state=1
+	</select>
+	
+	<select id="getServiceByTer" resultMap="BaseResultMap">
+			select * from bc_bug_service as a  
+			where a.state=1 and a.user_id = #{1} and a.ter_id = #{0} and a.service_type=03
+	</select>
+	
+	<select id="getPayList" parameterType="java.util.Map" 
+	resultType="java.util.Map">
+		SELECT a.channel AS feeType ,a.order_time AS feeTime ,a.amount AS fee,
+		a.order_subject as serviceType,b.stu_id AS studentId,b.stu_name AS studentName 
+		FROM  bc_pay_order a,bc_student b 
+		WHERE a.order_state = 1 AND a.user_id = b.user_id 
+		<if test="stuId!=null">
+			AND b.stu_id = #{stuId}
+		</if>
+		<if test="offset!=0">
+			limit #{cursor},#{offset}
+		</if>
+	</select>
+	
+	<select id="getServiceCount" parameterType="java.util.Map"
+	resultType="java.lang.Long">
+		SELECT COUNT(*) FROM  bc_pay_order a,bc_student b 
+		WHERE a.order_state = 1 AND a.user_id = b.user_id
+		<if test="stuId!=null">
+			AND b.stu_id = #{stuId}
+		</if>
+	</select>
+	
+	<select id="selectServiceFee" parameterType="java.lang.Long" 
+	resultType="java.util.Map">
+			select * from bc_service_pro where ps_id = #{psId}
+	</select>
+	
+	<select id="selectArrearage" parameterType="java.lang.Long" 
+	resultMap="BaseResultMap">
+			select *  from bc_bug_service 
+			where service_type = #{1} and user_id = #{0} 
+			and state = 1 and LAST_DAY(CURDATE())>end_time
+	</select>
+	
+	<select id="selectArrearageTask" resultMap="BaseResultMap">
+		SELECT * FROM bc_bug_service 
+		WHERE LAST_DAY(CURDATE())>=end_time AND user_id IS NOT NULL
+		AND state = 1
+	</select>
+	
+	<update id="updateService" parameterType="java.util.Map">
+		update bc_bug_service set end_time =#{endTime} where service_id=#{serviceId} and state=1
+	</update>
+	
+	<update id="delService" >
+		update bc_bug_service set state =#{1} where stu_id=#{0} and state=1
+	</update>
+	
+	<update id="updateRegService">
+		update bc_bug_service set user_id =#{1} where stu_id=#{0} and state=1
+	</update>
+	
+	<insert id="addNewService" parameterType="java.util.Map"
+		useGeneratedKeys="true">
+		insert into bc_bug_service (user_id,stu_id,ps_id,start_time,end_time,state,service_type,ter_id)
+		values (#{userId},#{stuId},#{psId},#{sTime},#{endTime},1,#{sType},#{terId})
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="adminId">
+			select last_insert_id()
+		</selectKey>
+	</insert>	
+	
+	
+</mapper>

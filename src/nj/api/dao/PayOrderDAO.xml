@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nj.api.dao.PayOrderDAO">
+
+
+	<resultMap id="BaseResultMap" type="nj.api.entity.OrderEntity">
+		<id column="order_id" jdbcType="BIGINT" property="orderId" />
+		<result column="ps_id" jdbcType="BIGINT" property="psId" />
+		<result column="user_id" jdbcType="BIGINT" property="userId" />
+		<result column="service_id" jdbcType="BIGINT" property="serviceId" />
+		<result column="amount" jdbcType="BIGINT" property="amount" />
+		<result column="channel" jdbcType="VARCHAR" property="channel" />
+		<result column="order_subject" jdbcType="VARCHAR" property="orderSub" />
+		<result column="order_state" jdbcType="INTEGER" property="state" />
+		<result column="order_time" jdbcType="TIMESTAMP" property="orderTime" />
+		<result column="buy_month" jdbcType="INTEGER" property="buyMonth" />
+		<result column="ter_id" jdbcType="BIGINT" property="terId" />
+		<result column="charge_id" jdbcType="VARCHAR" property="chargeId" />
+		<result column="order_type" jdbcType="INTEGER" property="orderType" />
+	</resultMap>
+	
+	<select id="selectPayOrder" parameterType="java.lang.Long"
+	resultMap="BaseResultMap">
+		select * from bc_pay_order
+		where order_id = #{orderId} and order_state=0;
+	</select>
+
+	<select id="selectPayingOrder" parameterType="java.util.Map"
+	resultMap="BaseResultMap">
+		select * from bc_pay_order a
+		where a.order_state=3 and a.user_id = #{userId}
+		<if test="terId != null">
+			and a.ter_id = #{terId}
+		</if>
+	</select>
+
+	
+	<insert id="insertPayOrder" keyProperty="orderId" parameterType="nj.api.entity.OrderEntity"
+		useGeneratedKeys="true">
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="orderId">
+			select last_insert_id()
+		</selectKey>
+		insert into bc_pay_order (ps_id,user_id,service_id,amount,channel,order_subject,order_state,order_time,buy_month,ter_id,charge_id,
+		order_type)
+		values (#{psId},#{userId},#{serviceId},#{amount},#{channel},#{orderSub},#{state},#{orderTime},#{buyMonth},#{terId},#{chargeId},
+		#{orderType})
+	</insert>
+	
+	<update id="updateChargeId" parameterType="java.util.Map">
+		update bc_pay_order set charge_id =#{chargeId} where order_id=#{orderId} 
+	</update>
+	
+	<update id="updatePayOrder" parameterType="java.util.Map">
+		update bc_pay_order set order_state =#{state} where order_id=#{orderId} and order_state != 1
+	</update>
+	
+	<update id="updateClass" parameterType="java.util.Map">
+		update bc_pay_order set order_state =#{state} where order_id=#{orderId}
+	</update>
+	
+	<select id="payHistory" parameterType="java.util.Map"
+	resultType="java.util.Map">
+		select po.order_subject as paymentName,po.amount as paymentMoney,po.order_time as paymentTime,
+		po.order_state as paymentStatus
+		from bc_pay_order po 
+		where po.user_id = #{userId} and date_format(order_time ,'%Y-%m')= #{month} and (po.order_state = 1
+		or po.order_state = 2)
+		order by order_time desc
+	
+	</select>
+	
+	<select id="selectHisMonth" parameterType="java.lang.Long"
+	resultType="java.util.Map">
+		select date_format(order_time ,'%Y-%m') as month 
+		from bc_pay_order po where  po.user_id = #{userId}   
+		group by date_format(order_time ,'%Y-%m')
+		order by po.order_time desc
+	
+	</select>
+
+	<select id="selectBill" parameterType="java.util.Map"
+	resultType="java.util.Map">
+		SELECT b.stu_id,a.order_id,b.stu_name,c.class_name,a.order_time,
+		a.order_subject,a.amount,b.stu_type
+		FROM bc_pay_order a ,bc_student b ,bc_stuclass c
+		WHERE a.user_id = b.user_id AND b.class_id=c.class_id
+		AND a.order_state=1 AND YEAR(a.order_time)= #{year}
+		<if test="month != null">
+			AND MONTH(a.order_time)=#{month}
+		</if>
+		ORDER BY a.order_time DESC
+	</select>
+	
+
+</mapper>

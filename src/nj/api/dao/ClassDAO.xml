@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nj.api.dao.ClassDAO">
+	<resultMap id="BaseResultMap" type="nj.api.entity.ClassEntity">
+		<id column="class_id" jdbcType="BIGINT" property="classId" />
+		<result column="class_name" jdbcType="VARCHAR" property="className" />
+		<result column="teacher_id" jdbcType="BIGINT" property="teacherId" />
+		<result column="class_num" jdbcType="INTEGER" property="classNum" />
+		<result column="c_state" jdbcType="INTEGER" property="classState" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="classTime" />
+		<result column="class_desc" jdbcType="VARCHAR" property="classDesc" />
+	</resultMap>
+	
+	
+	<sql id="Base_Column_List">
+		class_id, class_name, teacher_id, class_num, c_state, create_time, class_desc
+	</sql>
+
+	<select id="selectClassByName" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from bc_stuclass 
+		<if test="className!=null">
+			where class_name = #{className}
+		</if>
+		order by create_time desc
+		<if test="offset!=0">
+			limit #{cursor},#{offset}
+		</if>
+	</select>
+	
+	<select id="getClassCount" resultType="java.lang.Long">
+		SELECT COUNT(*) FROM  bc_stuclass 
+	</select>
+	
+	<select id="selectClassByTId" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from bc_stuclass 
+
+		where teacher_id = #{teacherId} and c_state=1
+
+		order by create_time desc
+	</select>
+	
+	<insert id="addClass" parameterType="nj.api.entity.ClassEntity"
+		useGeneratedKeys="true">
+		insert into bc_stuclass (class_name,teacher_id,class_num,c_state,create_time,class_desc)
+		values (#{className},#{teacherId},#{classNum},#{classState},#{classTime},#{classDesc})
+		<selectKey resultType="long" order="AFTER"
+			keyProperty="classId">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+
+	<update id="closeClass" parameterType="java.lang.Long">
+		update bc_stuclass set c_state = 0 where class_id=#{classId}
+	</update>
+	
+	<update id="updateClass" parameterType="nj.api.entity.ClassEntity">
+		update bc_stuclass
+		<set>
+			<if test="className != null">
+				class_name = #{className},
+			</if>
+			<if test="teacherId != null">
+				teacher_id = #{teacherId},
+			</if>
+			<if test="classDesc != null">
+				class_num = #{classNum},
+			</if>
+			<if test="classDesc != null">
+				c_state = #{classState},
+			</if>
+			<if test="classDesc != null">
+				class_desc = #{classDesc},
+			</if>
+		</set>
+		where class_id=#{classId}
+	</update>
+
+	<update id="updateClassNum" parameterType="java.lang.Long">
+		update bc_stuclass set class_num =class_num+1 where class_id=#{classId} and c_state=1
+	</update>	
+
+</mapper>

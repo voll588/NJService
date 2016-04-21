@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="NJService"
+  id="myeclipse.1455504646210"
+  context-root="/NJService"
+  j2ee-spec="6.0"
+  archive="NJService.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+

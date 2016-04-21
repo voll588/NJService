@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="NJService">
+        <wb-resource deploy-path="/" source-path="/WebRoot"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/common"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/pay"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/push"/>
+        <property name="context-root" value="/NJService"/>
+        <property name="java-output-path" value="/NJService/WebRoot/WEB-INF/classes"/>
+    </wb-module>
+</project-modules>
